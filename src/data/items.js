@@ -1,0 +1,137 @@
+// ── Mock Items ───────────────────────────────────────────────────────────────
+// Replace with API calls when connecting to a real backend.
+
+export const CATEGORIES = [
+  'Electronics',
+  'Books & Stationery',
+  'Sports & Recreation',
+  'Tools & Equipment',
+  'Arts & Crafts',
+  'Kitchen & Appliances',
+  'Clothing & Accessories',
+  'Other',
+];
+
+// availability: 'available' | 'borrowed' | 'unavailable'
+export const MOCK_ITEMS = [
+  {
+    id: 'item1',
+    name: 'Scientific Calculator (Casio fx-991)',
+    category: 'Electronics',
+    description:
+      'Advanced scientific calculator, perfect for engineering and math courses. Comes with the original case and manual.',
+    image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80',
+    availability: 'available',
+    condition: 'Good',
+    location: 'Library — Room 104',
+    ownerId: 'admin1',
+    createdAt: '2024-09-01',
+    borrowPeriod: 7, // days
+    tags: ['math', 'engineering', 'science'],
+  },
+  {
+    id: 'item2',
+    name: 'Canon DSLR Camera (EOS 2000D)',
+    category: 'Electronics',
+    description:
+      'Entry-level DSLR with 18-55mm kit lens. Great for photography classes, projects, or events. Includes 2 batteries and a 32GB SD card.',
+    image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&q=80',
+    availability: 'borrowed',
+    condition: 'Very Good',
+    location: 'Media Center',
+    ownerId: 'admin1',
+    createdAt: '2024-09-05',
+    borrowPeriod: 3,
+    tags: ['photography', 'media', 'arts'],
+  },
+  {
+    id: 'item3',
+    name: 'Electric Drill Set',
+    category: 'Tools & Equipment',
+    description:
+      'Cordless electric drill with a full bit set. Ideal for workshop projects and lab assignments.',
+    image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&q=80',
+    availability: 'available',
+    condition: 'Fair',
+    location: 'Engineering Workshop',
+    ownerId: 'admin1',
+    createdAt: '2024-09-08',
+    borrowPeriod: 2,
+    tags: ['tools', 'workshop', 'engineering'],
+  },
+  {
+    id: 'item4',
+    name: 'Badminton Racket Set (2 rackets)',
+    category: 'Sports & Recreation',
+    description:
+      'Two aluminium badminton rackets with a shuttlecock pack. Available for recreational use on campus.',
+    image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80',
+    availability: 'available',
+    condition: 'Good',
+    location: 'Sports Office',
+    ownerId: 'admin1',
+    createdAt: '2024-09-10',
+    borrowPeriod: 1,
+    tags: ['sports', 'badminton', 'recreation'],
+  },
+  {
+    id: 'item5',
+    name: 'Acoustic Guitar',
+    category: 'Arts & Crafts',
+    description:
+      'Steel-string acoustic guitar, suitable for beginners and intermediate players. Comes with a soft case and picks.',
+    image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+    availability: 'available',
+    condition: 'Good',
+    location: 'Arts Building — Room 201',
+    ownerId: 'admin1',
+    createdAt: '2024-09-12',
+    borrowPeriod: 7,
+    tags: ['music', 'arts', 'guitar'],
+  },
+  {
+    id: 'item6',
+    name: 'Portable Projector',
+    category: 'Electronics',
+    description:
+      'Mini portable projector with HDMI and USB-C support. Great for presentations and movie nights.',
+    image: 'https://images.unsplash.com/photo-1612198790700-9e8c93b1db20?w=400&q=80',
+    availability: 'unavailable',
+    condition: 'Very Good',
+    location: 'IT Office',
+    ownerId: 'admin1',
+    createdAt: '2024-09-15',
+    borrowPeriod: 2,
+    tags: ['electronics', 'presentation'],
+  },
+  {
+    id: 'item7',
+    name: 'Drawing Tablet (Wacom Intuos)',
+    category: 'Arts & Crafts',
+    description:
+      'Wacom Intuos Medium drawing tablet. Compatible with Windows and Mac. USB connection included.',
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&q=80',
+    availability: 'available',
+    condition: 'Very Good',
+    location: 'Design Lab',
+    ownerId: 'admin1',
+    createdAt: '2024-09-18',
+    borrowPeriod: 5,
+    tags: ['design', 'digital art', 'tablet'],
+  },
+  {
+    id: 'item8',
+    name: 'Camping Tent (2-person)',
+    category: 'Sports & Recreation',
+    description:
+      'Lightweight 2-person dome tent. Includes rain fly, stakes, and carry bag. Perfect for field trips.',
+    image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&q=80',
+    availability: 'borrowed',
+    condition: 'Good',
+    location: 'Outdoor Education Center',
+    ownerId: 'admin1',
+    createdAt: '2024-09-20',
+    borrowPeriod: 3,
+    tags: ['camping', 'outdoors', 'field trip'],
+  },
+];
