@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { MOCK_USERS } from '../data/users';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,11 +42,15 @@ function saveAccount(user, password) {
 }
 
 function getPassword(email) {
+  // Normalise to lowercase so lookups are always consistent
+  const key = email.toLowerCase().trim();
+  // MOCK_PASSWORDS (hardcoded) always wins — localStorage can never shadow them
+  if (MOCK_PASSWORDS[key] !== undefined) return MOCK_PASSWORDS[key];
   try {
     const pwMap = JSON.parse(localStorage.getItem('ll_passwords') || '{}');
-    return MOCK_PASSWORDS[email] ?? pwMap[email] ?? null;
+    return pwMap[key] ?? null;
   } catch {
-    return MOCK_PASSWORDS[email] ?? null;
+    return null;
   }
 }
 
@@ -86,13 +90,14 @@ export function AuthProvider({ children }) {
 
   /** @returns {{ ok: boolean, error?: string }} */
   function customerLogin({ email, password, remember = false }) {
-    const accounts = loadAccounts();
+    const normEmail = email.trim().toLowerCase();
+    const accounts  = loadAccounts();
     const user = accounts.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.role !== 'admin'
+      (u) => u.email.toLowerCase() === normEmail && u.role !== 'admin'
     );
     if (!user) return { ok: false, error: 'No account found with that email.' };
 
-    const stored = getPassword(email.trim().toLowerCase());
+    const stored = getPassword(normEmail);
     if (!stored || stored !== password) return { ok: false, error: 'Incorrect password.' };
     if (user.status === 'inactive') return { ok: false, error: 'This account is inactive. Contact support.' };
 
@@ -147,13 +152,14 @@ export function AuthProvider({ children }) {
 
   /** @returns {{ ok: boolean, error?: string }} */
   function adminLogin({ email, password, remember = false }) {
-    const accounts = loadAccounts();
+    const normEmail = email.trim().toLowerCase();
+    const accounts  = loadAccounts();
     const user = accounts.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.role === 'admin'
+      (u) => u.email.toLowerCase() === normEmail && u.role === 'admin'
     );
     if (!user) return { ok: false, error: 'No admin account found with that email.' };
 
-    const stored = getPassword(email.trim().toLowerCase());
+    const stored = getPassword(normEmail);
     if (!stored || stored !== password) return { ok: false, error: 'Incorrect password.' };
 
     persist(LS_ADMIN, user, remember);
