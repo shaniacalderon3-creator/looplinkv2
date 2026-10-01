@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FallbackLogo, styles } from './Login';
+import { FallbackLogo, styles, logoUrl } from './Login';
 
 export default function ForgotPassword() {
   const { forgotPassword } = useAuth();
@@ -31,8 +31,7 @@ export default function ForgotPassword() {
       <div style={{ ...styles.card, maxWidth: 420 }}>
         {/* Logo */}
         <div style={styles.logoWrap}>
-          <img src="/looplink-logo.jpg" alt="LoopLink" style={styles.logo} onError={(e) => { e.target.style.display = 'none'; }} />
-          <FallbackLogo />
+          <img src={logoUrl} alt="LoopLink" style={styles.logo} />
         </div>
 
         <h1 style={styles.heading}>Forgot Password?</h1>

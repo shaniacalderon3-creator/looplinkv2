@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import ToastContainer from '../components/shared/Toast';
+import logoUrl from '../assets/looplink-logo.jpg';
 
 export default function CustomerLayout() {
   const { toasts, removeToast } = useApp();
@@ -36,25 +37,10 @@ export default function CustomerLayout() {
           {/* Logo */}
           <Link to="/home" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', flexShrink: 0 }}>
             <img
-              src="/looplink-logo.jpg"
+              src={logoUrl}
               alt="LoopLink"
               style={{ height: 38, width: 'auto', objectFit: 'contain' }}
-              onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
             />
-            {/* Fallback wordmark — hidden when logo loads */}
-            <span style={{
-              display: 'none', alignItems: 'center', gap: '0.4rem',
-            }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: '9px',
-                background: 'linear-gradient(135deg, #7c1c1c, #b8860b)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 900, fontSize: '0.875rem',
-              }}>LL</div>
-              <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#7c1c1c', letterSpacing: '-0.02em' }}>
-                Loop<span style={{ color: '#b8860b' }}>Link</span>
-              </span>
-            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -191,10 +177,9 @@ export default function CustomerLayout() {
             {/* Logo in footer */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <img
-                src="/looplink-logo.jpg"
+                src={logoUrl}
                 alt="LoopLink"
                 style={{ height: 36, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.8 }}
-                onError={(e) => { e.target.style.display = 'none'; }}
               />
               <div>
                 <div style={{ fontWeight: 900, fontSize: '1rem', color: '#fff' }}>

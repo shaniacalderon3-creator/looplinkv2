@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FallbackLogo, GoogleIcon, styles } from './Login';
+import { FallbackLogo, GoogleIcon, styles, logoUrl } from './Login';
 
 export default function Register() {
   const { customerRegister } = useAuth();
@@ -67,8 +67,7 @@ export default function Register() {
       <div style={{ ...styles.card, maxWidth: 480, padding: '2.25rem 2rem' }}>
         {/* Logo */}
         <div style={styles.logoWrap}>
-          <img src="/looplink-logo.jpg" alt="LoopLink" style={styles.logo} onError={(e) => { e.target.style.display = 'none'; }} />
-          <FallbackLogo />
+          <img src={logoUrl} alt="LoopLink" style={styles.logo} />
         </div>
 
         <h1 style={styles.heading}>Create Account</h1>

@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/shared/StatusBadge';
 import Button from '../../components/shared/Button';
+import logoUrl from '../../assets/looplink-logo.jpg';
 
 export default function Home() {
   const { items, lostFound, borrowRequests } = useApp();
@@ -29,16 +30,16 @@ export default function Home() {
           {/* Logo in hero */}
           <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/looplink-logo.jpg"
+              src={logoUrl}
               alt="LoopLink"
               style={{
                 height: 72,
                 width: 'auto',
+                maxWidth: '80vw',
                 objectFit: 'contain',
                 filter: 'brightness(0) invert(1)',
                 opacity: 0.95,
               }}
-              onError={(e) => { e.target.style.display = 'none'; }}
             />
           </div>
           <div
@@ -68,8 +69,8 @@ export default function Home() {
             Borrow, Lend &amp; Find<br />
             <span style={{ opacity: 0.85 }}>on Campus</span>
           </h1>
-          <p style={{ fontSize: '1.125rem', opacity: 0.85, maxWidth: 520, margin: '0 auto 2rem' }}>
-            LoopLink connects students to shared campus resources — from calculators to cameras — and keeps lost items found.
+          <p style={{ fontSize: '1.0625rem', opacity: 0.85, maxWidth: 600, margin: '0 auto 2rem', lineHeight: 1.75 }}>
+            The ultimate student resource hub for locating, recovering, sharing, borrowing, and returning. Connect with your peers and keep your belongings in a continuous cycle of connection.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Button

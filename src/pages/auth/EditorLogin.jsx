@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logoUrl from '../../assets/looplink-logo.jpg';
 
 export default function EditorLogin() {
   const { adminLogin } = useAuth();
@@ -35,10 +36,9 @@ export default function EditorLogin() {
         <div style={leftInner}>
           {/* Logo */}
           <img
-            src="/looplink-logo.jpg"
+            src={logoUrl}
             alt="LoopLink"
             style={{ height: 80, width: 'auto', objectFit: 'contain', marginBottom: '1.5rem' }}
-            onError={(e) => { e.target.style.display = 'none'; }}
           />
           <AdminLogoFallback />
           <p style={{ color: 'rgba(255,255,255,.65)', fontSize: '0.9375rem', marginTop: '1.5rem', maxWidth: 280, textAlign: 'center', lineHeight: 1.7 }}>
@@ -93,14 +93,6 @@ export default function EditorLogin() {
             </p>
           </div>
 
-          {/* Demo hint */}
-          <div style={{
-            background: '#fffbeb', border: '1px solid #fde68a',
-            borderRadius: 'var(--radius)', padding: '0.625rem 0.875rem',
-            fontSize: '0.8125rem', color: '#92400e', marginBottom: '1.25rem', lineHeight: 1.6,
-          }}>
-            <strong>Demo credentials —</strong> email: <code>admin@looplink.edu</code> · password: <code>admin123</code>
-          </div>
 
           {error && (
             <div style={{

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import ToastContainer from '../components/shared/Toast';
+import logoUrl from '../assets/looplink-logo.jpg';
 
 const navItems = [
   { to: '/admin',                 label: 'Dashboard',       icon: '◉', exact: true },
@@ -54,7 +55,7 @@ export default function AdminLayout() {
           {!collapsed && (
             <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', overflow: 'hidden' }}>
               <img
-                src="/looplink-logo.jpg"
+                src={logoUrl}
                 alt="LoopLink"
                 style={{ height: 34, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9, flexShrink: 0 }}
                 onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}

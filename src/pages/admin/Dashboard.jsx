@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/shared/StatusBadge';
+import logoUrl from '../../assets/looplink-logo.jpg';
 
 export default function Dashboard() {
   const { items, borrowRequests, lostFound, users } = useApp();
@@ -24,10 +25,9 @@ export default function Dashboard() {
         {/* Logo strip */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
           <img
-            src="/looplink-logo.jpg"
+            src={logoUrl}
             alt="LoopLink"
             style={{ height: 44, width: 'auto', objectFit: 'contain' }}
-            onError={(e) => { e.target.style.display = 'none'; }}
           />
         </div>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--gray-800)', letterSpacing: '-0.02em' }}>

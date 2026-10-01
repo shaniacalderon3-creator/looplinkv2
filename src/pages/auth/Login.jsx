@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logoUrl from '../../assets/looplink-logo.jpg';
+
+// Re-export so Register and ForgotPassword can import it from one place
+export { logoUrl };
 
 export default function Login() {
   const { customerLogin } = useAuth();
@@ -41,8 +45,7 @@ export default function Login() {
       <div style={styles.card}>
         {/* Logo */}
         <div style={styles.logoWrap}>
-          <img src="/looplink-logo.jpg" alt="LoopLink" style={styles.logo} onError={(e) => { e.target.style.display = 'none'; }} />
-          <FallbackLogo />
+          <img src={logoUrl} alt="LoopLink" style={styles.logo} />
         </div>
 
         <h1 style={styles.heading}>Welcome back</h1>
