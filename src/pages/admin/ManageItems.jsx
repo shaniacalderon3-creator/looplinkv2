@@ -8,11 +8,12 @@ import Modal from '../../components/shared/Modal';
 import { ConfirmModal } from '../../components/shared/Modal';
 import EmptyState from '../../components/shared/EmptyState';
 import { CATEGORIES } from '../../data/items';
+import { formatPrice } from '../../utils/formatPrice';
 
 const EMPTY_FORM = {
   name: '', category: '', description: '', image: '',
   availability: 'available', condition: 'Good', location: '',
-  borrowPeriod: 7, tags: '',
+  borrowPeriod: 7, borrowingFee: 0, tags: '',
 };
 
 export default function ManageItems() {
@@ -44,7 +45,7 @@ export default function ManageItems() {
   };
 
   const openEdit = (item) => {
-    setForm({ ...item, tags: item.tags?.join(', ') ?? '' });
+    setForm({ ...item, borrowingFee: item.borrowingFee ?? 0, tags: item.tags?.join(', ') ?? '' });
     setErrors({});
     setEditTarget(item);
     setShowForm(true);
@@ -66,6 +67,7 @@ export default function ManageItems() {
     const payload = {
       ...form,
       borrowPeriod: Number(form.borrowPeriod),
+      borrowingFee: Number(form.borrowingFee) || 0,
       tags: form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
     };
     if (editTarget) {
@@ -122,6 +124,7 @@ export default function ManageItems() {
                 <th>Category</th>
                 <th>Location</th>
                 <th>Condition</th>
+                <th>Fee</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -143,6 +146,15 @@ export default function ManageItems() {
                   <td style={{ fontSize: '0.875rem', color: 'var(--gray-600)' }}>{item.category}</td>
                   <td style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>{item.location}</td>
                   <td style={{ fontSize: '0.875rem' }}>{item.condition}</td>
+                  <td>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c',
+                    }}>
+                      {formatPrice(item.borrowingFee)}
+                    </span>
+                  </td>
                   <td><StatusBadge status={item.availability} /></td>
                   <td>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
@@ -220,6 +232,29 @@ export default function ManageItems() {
               <label className="form-label">Max Borrow Period (days)</label>
               <input type="number" className="form-control" min={1} max={30} value={form.borrowPeriod} onChange={(e) => setForm({ ...form, borrowPeriod: e.target.value })} />
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Borrowing Fee (₱) — enter 0 for Free</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)',
+                fontWeight: 700, color: 'var(--gray-500)', fontSize: '0.9375rem', pointerEvents: 'none',
+              }}>₱</span>
+              <input
+                type="number"
+                className="form-control"
+                min={0}
+                step={1}
+                value={form.borrowingFee}
+                onChange={(e) => setForm({ ...form, borrowingFee: e.target.value })}
+                style={{ paddingLeft: '1.75rem' }}
+                placeholder="0"
+              />
+            </div>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: '0.25rem', display: 'block' }}>
+              Set to 0 to mark as <strong>Free</strong>.
+            </span>
           </div>
 
           <div className="form-group">

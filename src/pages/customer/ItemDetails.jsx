@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/shared/StatusBadge';
 import Button from '../../components/shared/Button';
 import Modal from '../../components/shared/Modal';
+import { formatPrice } from '../../utils/formatPrice';
 
 export default function ItemDetails() {
   const { id } = useParams();
@@ -133,10 +134,10 @@ export default function ItemDetails() {
               }}
             >
               {[
-                { label: 'Condition',    value: item.condition },
-                { label: 'Location',     value: item.location  },
+                { label: 'Condition',     value: item.condition },
+                { label: 'Location',      value: item.location  },
                 { label: 'Borrow Period', value: `Up to ${item.borrowPeriod} day${item.borrowPeriod !== 1 ? 's' : ''}` },
-                { label: 'Added',        value: item.createdAt },
+                { label: 'Added',         value: item.createdAt },
               ].map((meta) => (
                 <div
                   key={meta.label}
@@ -153,6 +154,32 @@ export default function ItemDetails() {
                   <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--gray-700)' }}>{meta.value}</p>
                 </div>
               ))}
+
+              {/* Borrowing Fee — full width */}
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  background: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success-light)' : '#fdf2f2',
+                  border: `1px solid ${(!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#f5b8b8'}`,
+                  borderRadius: 'var(--radius)',
+                  padding: '0.75rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Borrowing Fee
+                </p>
+                <p style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 900,
+                  color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c',
+                  letterSpacing: '-0.01em',
+                }}>
+                  {formatPrice(item.borrowingFee)}
+                </p>
+              </div>
             </div>
 
             {/* Action */}
@@ -212,9 +239,32 @@ export default function ItemDetails() {
           </>
         }
       >
-        <p style={{ color: 'var(--gray-600)', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--gray-600)', marginBottom: '1rem', fontSize: '0.9rem' }}>
           Submitting a request for: <strong>{item.name}</strong>
         </p>
+
+        {/* Fee notice */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success-light)' : '#fdf2f2',
+          border: `1px solid ${(!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#f5b8b8'}`,
+          borderRadius: 'var(--radius)',
+          padding: '0.625rem 0.875rem',
+          marginBottom: '1.25rem',
+        }}>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-600)' }}>
+            💰 Borrowing Fee
+          </span>
+          <span style={{
+            fontSize: '1.0625rem',
+            fontWeight: 900,
+            color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c',
+          }}>
+            {formatPrice(item.borrowingFee)}
+          </span>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

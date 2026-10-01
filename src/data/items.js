@@ -13,6 +13,7 @@ export const CATEGORIES = [
 ];
 
 // availability: 'available' | 'borrowed' | 'unavailable'
+// borrowingFee: number (PHP peso). 0 = Free.
 export const MOCK_ITEMS = [
   {
     id: 'item1',
@@ -26,7 +27,8 @@ export const MOCK_ITEMS = [
     location: 'Library — Room 104',
     ownerId: 'admin1',
     createdAt: '2024-09-01',
-    borrowPeriod: 7, // days
+    borrowPeriod: 7,
+    borrowingFee: 0,
     tags: ['math', 'engineering', 'science'],
   },
   {
@@ -42,6 +44,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-05',
     borrowPeriod: 3,
+    borrowingFee: 150,
     tags: ['photography', 'media', 'arts'],
   },
   {
@@ -57,6 +60,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-08',
     borrowPeriod: 2,
+    borrowingFee: 75,
     tags: ['tools', 'workshop', 'engineering'],
   },
   {
@@ -72,6 +76,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-10',
     borrowPeriod: 1,
+    borrowingFee: 0,
     tags: ['sports', 'badminton', 'recreation'],
   },
   {
@@ -87,6 +92,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-12',
     borrowPeriod: 7,
+    borrowingFee: 50,
     tags: ['music', 'arts', 'guitar'],
   },
   {
@@ -102,6 +108,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-15',
     borrowPeriod: 2,
+    borrowingFee: 100,
     tags: ['electronics', 'presentation'],
   },
   {
@@ -117,6 +124,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-18',
     borrowPeriod: 5,
+    borrowingFee: 80,
     tags: ['design', 'digital art', 'tablet'],
   },
   {
@@ -132,6 +140,7 @@ export const MOCK_ITEMS = [
     ownerId: 'admin1',
     createdAt: '2024-09-20',
     borrowPeriod: 3,
+    borrowingFee: 120,
     tags: ['camping', 'outdoors', 'field trip'],
   },
 ];

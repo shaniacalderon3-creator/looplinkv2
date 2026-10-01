@@ -6,6 +6,7 @@ import StatusBadge from '../../components/shared/StatusBadge';
 import PageHeader from '../../components/shared/PageHeader';
 import EmptyState from '../../components/shared/EmptyState';
 import { CATEGORIES } from '../../data/items';
+import { formatPrice } from '../../utils/formatPrice';
 
 export default function BrowseItems() {
   const { items } = useApp();
@@ -139,8 +140,24 @@ function ItemCard({ item, onClick }) {
             {item.condition}
           </span>
         </div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginTop: '0.2rem' }}>
-          ⏱ Borrow up to {item.borrowPeriod} day{item.borrowPeriod !== 1 ? 's' : ''}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.35rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>
+            ⏱ Up to {item.borrowPeriod} day{item.borrowPeriod !== 1 ? 's' : ''}
+          </span>
+          {/* Borrowing fee */}
+          <span
+            style={{
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c',
+              background: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success-light)' : '#fdf2f2',
+              padding: '0.15rem 0.55rem',
+              borderRadius: '999px',
+              letterSpacing: '0.01em',
+            }}
+          >
+            {formatPrice(item.borrowingFee)}
+          </span>
         </div>
       </div>
     </div>

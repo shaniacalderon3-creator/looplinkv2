@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/shared/StatusBadge';
 import Button from '../../components/shared/Button';
 import logoUrl from '../../assets/looplink-logo.jpg';
+import { formatPrice } from '../../utils/formatPrice';
 
 export default function Home() {
   const { items, lostFound, borrowRequests } = useApp();
@@ -237,6 +238,20 @@ function ItemCard({ item }) {
         </div>
         <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{item.category}</p>
         <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginTop: '0.25rem' }}>📍 {item.location}</p>
+        <div style={{ marginTop: '0.5rem' }}>
+          <span
+            style={{
+              fontSize: '0.8125rem',
+              fontWeight: 800,
+              color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c',
+              background: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success-light)' : '#fdf2f2',
+              padding: '0.15rem 0.55rem',
+              borderRadius: '999px',
+            }}
+          >
+            {formatPrice(item.borrowingFee)}
+          </span>
+        </div>
       </div>
     </div>
   );
