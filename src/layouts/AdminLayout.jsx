@@ -6,11 +6,12 @@ import ToastContainer from '../components/shared/Toast';
 import logoUrl from '../assets/looplink-logo.jpg';
 
 const navItems = [
-  { to: '/admin',                 label: 'Dashboard',       icon: '◉', exact: true },
-  { to: '/admin/items',           label: 'Manage Items',    icon: '📦' },
-  { to: '/admin/borrow-requests', label: 'Borrow Requests', icon: '🔄' },
-  { to: '/admin/lost-found',      label: 'Lost & Found',    icon: '🔍' },
-  { to: '/admin/users',           label: 'Manage Users',    icon: '👥' },
+  { to: '/admin',                  label: 'Dashboard',        icon: '◉', exact: true },
+  { to: '/admin/items',            label: 'Manage Items',     icon: '📦' },
+  { to: '/admin/borrow-requests',  label: 'Borrow Requests',  icon: '🔄' },
+  { to: '/admin/shared-donated',   label: 'Shared & Donated', icon: '🎁' },
+  { to: '/admin/lost-found',       label: 'Lost & Found',     icon: '🔍' },
+  { to: '/admin/users',            label: 'Manage Users',     icon: '👥' },
 ];
 
 export default function AdminLayout() {

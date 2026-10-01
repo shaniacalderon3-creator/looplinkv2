@@ -12,10 +12,11 @@ export default function CustomerLayout() {
   const navigate = useNavigate();
 
   const navLinks = [
-    { to: '/home',       label: 'Home'         },
-    { to: '/browse',     label: 'Browse Items' },
-    { to: '/my-borrow',  label: 'My Borrowing' },
-    { to: '/lost-found', label: 'Lost & Found' },
+    { to: '/home',           label: 'Home'             },
+    { to: '/browse',         label: 'Browse Items'     },
+    { to: '/shared-donated', label: 'Shared & Donated' },
+    { to: '/my-borrow',      label: 'My Borrowing'     },
+    { to: '/lost-found',     label: 'Lost & Found'     },
   ];
 
   const handleLogout = () => {

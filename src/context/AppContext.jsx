@@ -3,6 +3,7 @@ import { MOCK_ITEMS } from '../data/items';
 import { MOCK_BORROW_REQUESTS } from '../data/borrowRequests';
 import { MOCK_LOST_FOUND } from '../data/lostFound';
 import { MOCK_USERS } from '../data/users';
+import { MOCK_SHARED_DONATED } from '../data/sharedDonated';
 
 // ── Initial state ─────────────────────────────────────────────────────────────
 const initialState = {
@@ -10,6 +11,7 @@ const initialState = {
   borrowRequests: MOCK_BORROW_REQUESTS,
   lostFound: MOCK_LOST_FOUND,
   users: MOCK_USERS,
+  sharedDonated: MOCK_SHARED_DONATED,
 };
 
 // ── Reducer ───────────────────────────────────────────────────────────────────
@@ -62,6 +64,19 @@ function reducer(state, action) {
       };
     case 'DELETE_USER':
       return { ...state, users: state.users.filter((u) => u.id !== action.payload) };
+
+    // ── Shared / Donated ──
+    case 'ADD_SHARED_DONATED':
+      return { ...state, sharedDonated: [...state.sharedDonated, action.payload] };
+    case 'UPDATE_SHARED_DONATED':
+      return {
+        ...state,
+        sharedDonated: state.sharedDonated.map((r) =>
+          r.id === action.payload.id ? { ...r, ...action.payload } : r,
+        ),
+      };
+    case 'DELETE_SHARED_DONATED':
+      return { ...state, sharedDonated: state.sharedDonated.filter((r) => r.id !== action.payload) };
 
     default:
       return state;
@@ -149,6 +164,29 @@ export function AppProvider({ children }) {
   const getItemById = (id) => state.items.find((i) => i.id === id);
   const getUserById = (id) => state.users.find((u) => u.id === id);
 
+  // ── Shared / Donated actions ──────────────────────────────────────────────
+  const addSharedDonated = (listing) => {
+    dispatch({
+      type: 'ADD_SHARED_DONATED',
+      payload: {
+        ...listing,
+        id: genId('sd'),
+        datePosted: new Date().toISOString().slice(0, 10),
+        status: 'pending',
+        adminNote: '',
+      },
+    });
+    addToast('Listing submitted! It will be reviewed by an admin.', 'success');
+  };
+  const updateSharedDonated = (listing) => {
+    dispatch({ type: 'UPDATE_SHARED_DONATED', payload: listing });
+    addToast('Listing updated.', 'success');
+  };
+  const deleteSharedDonated = (id) => {
+    dispatch({ type: 'DELETE_SHARED_DONATED', payload: id });
+    addToast('Listing removed.', 'success');
+  };
+
   const value = {
     ...state,
     toasts,
@@ -162,6 +200,8 @@ export function AppProvider({ children }) {
     addLostFound, updateLostFound, deleteLostFound,
     // Users
     addUser, updateUser, deleteUser, getUserById,
+    // Shared / Donated
+    addSharedDonated, updateSharedDonated, deleteSharedDonated,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

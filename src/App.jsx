@@ -19,19 +19,21 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import EditorLogin    from './pages/auth/EditorLogin';
 
 // Customer pages
-import Home        from './pages/customer/Home';
-import BrowseItems from './pages/customer/BrowseItems';
-import ItemDetails from './pages/customer/ItemDetails';
-import MyBorrowing from './pages/customer/MyBorrowing';
-import LostFound   from './pages/customer/LostFound';
-import MyProfile   from './pages/customer/MyProfile';
+import Home           from './pages/customer/Home';
+import BrowseItems    from './pages/customer/BrowseItems';
+import ItemDetails    from './pages/customer/ItemDetails';
+import MyBorrowing    from './pages/customer/MyBorrowing';
+import LostFound      from './pages/customer/LostFound';
+import MyProfile      from './pages/customer/MyProfile';
+import SharedDonated  from './pages/customer/SharedDonated';
 
 // Admin pages
-import Dashboard            from './pages/admin/Dashboard';
-import ManageItems          from './pages/admin/ManageItems';
-import ManageBorrowRequests from './pages/admin/ManageBorrowRequests';
-import ManageLostFound      from './pages/admin/ManageLostFound';
-import ManageUsers          from './pages/admin/ManageUsers';
+import Dashboard             from './pages/admin/Dashboard';
+import ManageItems           from './pages/admin/ManageItems';
+import ManageBorrowRequests  from './pages/admin/ManageBorrowRequests';
+import ManageLostFound       from './pages/admin/ManageLostFound';
+import ManageUsers           from './pages/admin/ManageUsers';
+import ManageSharedDonated   from './pages/admin/ManageSharedDonated';
 
 export default function App() {
   return (
@@ -79,12 +81,13 @@ export default function App() {
                 </CustomerRoute>
               }
             >
-              <Route path="/home"       element={<Home />}        />
-              <Route path="/browse"     element={<BrowseItems />} />
-              <Route path="/items/:id"  element={<ItemDetails />} />
-              <Route path="/my-borrow"  element={<MyBorrowing />} />
-              <Route path="/lost-found" element={<LostFound />}   />
-              <Route path="/profile"    element={<MyProfile />}   />
+              <Route path="/home"            element={<Home />}           />
+              <Route path="/browse"          element={<BrowseItems />}    />
+              <Route path="/items/:id"       element={<ItemDetails />}    />
+              <Route path="/my-borrow"       element={<MyBorrowing />}    />
+              <Route path="/lost-found"      element={<LostFound />}      />
+              <Route path="/shared-donated"  element={<SharedDonated />}  />
+              <Route path="/profile"         element={<MyProfile />}      />
             </Route>
 
             {/* ── Protected Admin routes ── */}
@@ -99,6 +102,7 @@ export default function App() {
               <Route index                   element={<Dashboard />}            />
               <Route path="items"            element={<ManageItems />}          />
               <Route path="borrow-requests"  element={<ManageBorrowRequests />} />
+              <Route path="shared-donated"   element={<ManageSharedDonated />}  />
               <Route path="lost-found"       element={<ManageLostFound />}      />
               <Route path="users"            element={<ManageUsers />}          />
             </Route>

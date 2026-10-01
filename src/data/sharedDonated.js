@@ -1,0 +1,128 @@
+// ── Shared / Donated Listings ─────────────────────────────────────────────────
+// type:   'shared' | 'donated'
+// status: 'pending' | 'approved' | 'available' | 'claimed' | 'completed' | 'rejected'
+// No borrowingFee field — these items are always free.
+
+export const SD_CATEGORIES = [
+  'School Supplies',
+  'Books',
+  'Clothes / Uniforms',
+  'Electronics',
+  'School Materials',
+  'Other',
+];
+
+export const MOCK_SHARED_DONATED = [
+  {
+    id: 'sd1',
+    name: 'Mathematics Textbook (Grade 11)',
+    category: 'Books',
+    description:
+      'Pre-calculus and Statistics textbook, lightly used. All pages intact. Perfect for Grade 11 STEM students.',
+    image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&q=80',
+    condition: 'Good',
+    type: 'donated',
+    status: 'available',
+    postedById: 'u3',
+    postedBy: 'Morgan Lee',
+    datePosted: '2024-09-20',
+    contactMethod: 'morgan.lee@student.edu',
+    adminNote: '',
+  },
+  {
+    id: 'sd2',
+    name: 'Extra Composition Notebooks (5 pcs)',
+    category: 'School Supplies',
+    description:
+      'Five brand-new composition notebooks, unused. Happy to give them away to a classmate who needs them.',
+    image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80',
+    condition: 'Very Good',
+    type: 'donated',
+    status: 'available',
+    postedById: 'u1',
+    postedBy: 'Alex Rivera',
+    datePosted: '2024-09-22',
+    contactMethod: 'alex.rivera@student.edu',
+    adminNote: '',
+  },
+  {
+    id: 'sd3',
+    name: 'Scientific Calculator (Casio fx-82)',
+    category: 'Electronics',
+    description:
+      'Basic scientific calculator, still works perfectly. Sharing it for anyone who needs one for exams.',
+    image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80',
+    condition: 'Good',
+    type: 'shared',
+    status: 'available',
+    postedById: 'u2',
+    postedBy: 'Jamie Santos',
+    datePosted: '2024-09-24',
+    contactMethod: 'jamie.santos@student.edu',
+    adminNote: '',
+  },
+  {
+    id: 'sd4',
+    name: 'School Uniform (Size M — Female)',
+    category: 'Clothes / Uniforms',
+    description:
+      'Complete school uniform set — blouse and skirt, size Medium. Clean and in good condition. Donating since I graduated.',
+    image: 'https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=400&q=80',
+    condition: 'Good',
+    type: 'donated',
+    status: 'claimed',
+    postedById: 'u3',
+    postedBy: 'Morgan Lee',
+    datePosted: '2024-09-18',
+    contactMethod: 'morgan.lee@student.edu',
+    adminNote: 'Claimed by a Grade 10 student.',
+  },
+  {
+    id: 'sd5',
+    name: 'USB Flash Drive (32 GB)',
+    category: 'Electronics',
+    description:
+      'SanDisk 32 GB USB drive. Works fine, just have too many. Sharing it — please return when done.',
+    image: 'https://images.unsplash.com/photo-1591238372338-fb5d9a1f558b?w=400&q=80',
+    condition: 'Very Good',
+    type: 'shared',
+    status: 'available',
+    postedById: 'u1',
+    postedBy: 'Alex Rivera',
+    datePosted: '2024-09-26',
+    contactMethod: 'alex.rivera@student.edu',
+    adminNote: '',
+  },
+  {
+    id: 'sd6',
+    name: 'Filipino Literature Book Set',
+    category: 'Books',
+    description:
+      'Set of 3 Filipino literature books required in Comm Arts. No longer need them. Free to a good home.',
+    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=80',
+    condition: 'Fair',
+    type: 'donated',
+    status: 'pending',
+    postedById: 'u2',
+    postedBy: 'Jamie Santos',
+    datePosted: '2024-09-28',
+    contactMethod: 'jamie.santos@student.edu',
+    adminNote: '',
+  },
+  {
+    id: 'sd7',
+    name: 'Colored Pencil Set (24 colors)',
+    category: 'School Materials',
+    description:
+      'Faber-Castell 24-color pencil set, barely used. Available to share for art projects or requirements.',
+    image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80',
+    condition: 'Very Good',
+    type: 'shared',
+    status: 'available',
+    postedById: 'u3',
+    postedBy: 'Morgan Lee',
+    datePosted: '2024-09-29',
+    contactMethod: 'morgan.lee@student.edu',
+    adminNote: '',
+  },
+];

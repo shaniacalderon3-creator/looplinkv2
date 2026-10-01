@@ -5,15 +5,16 @@ import StatusBadge from '../../components/shared/StatusBadge';
 import logoUrl from '../../assets/looplink-logo.jpg';
 
 export default function Dashboard() {
-  const { items, borrowRequests, lostFound, users } = useApp();
+  const { items, borrowRequests, lostFound, users, sharedDonated } = useApp();
   const { admin } = useAuth();
   const navigate = useNavigate();
 
   const stats = [
-    { label: 'Total Items',       value: items.length,                                               sub: `${items.filter(i => i.availability==='available').length} available`,    color: 'var(--primary)',  icon: '📦', path: '/admin/items'           },
-    { label: 'Borrow Requests',   value: borrowRequests.length,                                      sub: `${borrowRequests.filter(r=>r.status==='pending').length} pending`,       color: 'var(--warning)',  icon: '🔄', path: '/admin/borrow-requests'  },
-    { label: 'Lost & Found',      value: lostFound.length,                                           sub: `${lostFound.filter(r=>r.status==='open').length} open`,                 color: 'var(--accent)',   icon: '🔍', path: '/admin/lost-found'        },
-    { label: 'Students',          value: users.filter(u=>u.role==='student').length,                 sub: `${users.filter(u=>u.status==='active'&&u.role==='student').length} active`, color: 'var(--success)', icon: '👥', path: '/admin/users'           },
+    { label: 'Total Items',       value: items.length,                                               sub: `${items.filter(i => i.availability==='available').length} available`,       color: 'var(--primary)',  icon: '📦', path: '/admin/items'           },
+    { label: 'Borrow Requests',   value: borrowRequests.length,                                      sub: `${borrowRequests.filter(r=>r.status==='pending').length} pending`,          color: 'var(--warning)',  icon: '🔄', path: '/admin/borrow-requests'  },
+    { label: 'Shared & Donated',  value: sharedDonated.length,                                       sub: `${sharedDonated.filter(r=>r.status==='pending').length} pending · ${sharedDonated.filter(r=>r.status==='available').length} available`, color: '#7c1c1c', icon: '🎁', path: '/admin/shared-donated' },
+    { label: 'Lost & Found',      value: lostFound.length,                                           sub: `${lostFound.filter(r=>r.status==='open').length} open`,                    color: 'var(--accent)',   icon: '🔍', path: '/admin/lost-found'        },
+    { label: 'Students',          value: users.filter(u=>u.role==='student').length,                 sub: `${users.filter(u=>u.status==='active'&&u.role==='student').length} active`,  color: 'var(--success)', icon: '👥', path: '/admin/users'            },
   ];
 
   const pendingRequests = borrowRequests.filter((r) => r.status === 'pending').slice(0, 5);
@@ -39,7 +40,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid-4" style={{ marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         {stats.map((s) => (
           <div
             key={s.label}
