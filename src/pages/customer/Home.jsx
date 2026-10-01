@@ -24,22 +24,20 @@ export default function Home() {
         style={{
           background: 'linear-gradient(135deg, #7c1c1c 0%, #3730a3 55%, #0e7490 100%)',
           color: '#fff',
-          padding: '4rem 0 3.5rem',
+          padding: '2rem 0 1.75rem',
         }}
       >
         <div className="container" style={{ textAlign: 'center' }}>
           {/* Logo in hero */}
-          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
             <img
               src={logoUrl}
               alt="LoopLink"
               style={{
-                height: 72,
+                height: 48,
                 width: 'auto',
-                maxWidth: '80vw',
+                maxWidth: '60vw',
                 objectFit: 'contain',
-                filter: 'brightness(0) invert(1)',
-                opacity: 0.95,
               }}
             />
           </div>
@@ -48,11 +46,11 @@ export default function Home() {
               display: 'inline-block',
               background: 'rgba(255,255,255,.15)',
               borderRadius: '999px',
-              padding: '0.35rem 1rem',
-              fontSize: '0.8125rem',
+              padding: '0.25rem 0.875rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               letterSpacing: '0.06em',
-              marginBottom: '1.25rem',
+              marginBottom: '0.75rem',
               textTransform: 'uppercase',
             }}
           >
@@ -60,20 +58,20 @@ export default function Home() {
           </div>
           <h1
             style={{
-              fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+              fontSize: 'clamp(1.5rem, 4vw, 2.25rem)',
               fontWeight: 900,
-              lineHeight: 1.15,
-              marginBottom: '1rem',
-              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              marginBottom: '0.625rem',
+              letterSpacing: '-0.02em',
             }}
           >
             Borrow, Lend &amp; Find<br />
             <span style={{ opacity: 0.85 }}>on Campus</span>
           </h1>
-          <p style={{ fontSize: '1.0625rem', opacity: 0.85, maxWidth: 600, margin: '0 auto 2rem', lineHeight: 1.75 }}>
+          <p style={{ fontSize: '0.9375rem', opacity: 0.85, maxWidth: 560, margin: '0 auto 1.25rem', lineHeight: 1.65 }}>
             The ultimate student resource hub for locating, recovering, sharing, borrowing, and returning. Connect with your peers and keep your belongings in a continuous cycle of connection.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Button
               size="lg"
               style={{ background: '#fff', color: 'var(--primary)', border: 'none', fontWeight: 700 }}
