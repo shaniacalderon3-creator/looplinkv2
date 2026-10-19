@@ -54,14 +54,6 @@ export default function Register() {
     alert('Google Sign-In is not connected in this prototype.\n\nPlease register with the form above.');
   };
 
-  const Field = ({ label, id, children, error }) => (
-    <div className="form-group">
-      <label className="form-label" htmlFor={id}>{label}</label>
-      {children}
-      {error && <span style={{ color: 'var(--danger)', fontSize: '0.8rem' }}>{error}</span>}
-    </div>
-  );
-
   return (
     <div style={styles.page}>
       <div style={{ ...styles.card, maxWidth: 480, padding: '2.25rem 2rem' }}>
@@ -179,6 +171,18 @@ export default function Register() {
           <Link to="/login" style={styles.link}>Back to Login</Link>
         </p>
       </div>
+    </div>
+  );
+}
+
+// Defined outside Register so React never recreates it on re-render,
+// which would unmount the input and steal focus after every keystroke.
+function Field({ label, id, children, error }) {
+  return (
+    <div className="form-group">
+      <label className="form-label" htmlFor={id}>{label}</label>
+      {children}
+      {error && <span style={{ color: 'var(--danger)', fontSize: '0.8rem' }}>{error}</span>}
     </div>
   );
 }
