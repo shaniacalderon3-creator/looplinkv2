@@ -40,8 +40,7 @@ export default function Register() {
     if (!validate()) return;
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    const result = customerRegister(form);
+    const result = await customerRegister(form);
     setLoading(false);
 
     if (result.ok) {

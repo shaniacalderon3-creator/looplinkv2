@@ -1,0 +1,13 @@
+warning: in the working copy of 'src/context/AuthContext.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/firebase.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/admin/ManageUsers.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/EditorLogin.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/Register.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'vite.config.js', LF will be replaced by CRLF the next time Git touches it
+ src/context/AuthContext.jsx     | 244 [32m++++++++++++++++++++++++++++++++++++[m[31m----[m
+ src/firebase.js                 |  48 [32m+++[m[31m-----[m
+ src/pages/admin/ManageUsers.jsx | 233 [32m+++++++++++++++++++++++++++++++[m[31m-------[m
+ src/pages/auth/EditorLogin.jsx  | 151 [32m++++++++++++++[m[31m-----------[m
+ src/pages/auth/Register.jsx     |   3 [32m+[m[31m-[m
+ vite.config.js                  |   5 [32m+[m
+ 6 files changed, 527 insertions(+), 157 deletions(-)
