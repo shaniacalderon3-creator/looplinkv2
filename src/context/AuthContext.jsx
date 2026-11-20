@@ -1,5 +1,8 @@
 import { createContext, useContext, useState } from 'react';
 import { MOCK_USERS } from '../data/users';
+import { auth, googleProvider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock credential store.  Replace with real API calls when connecting a backend.
@@ -149,7 +152,6 @@ export function AuthProvider({ children }) {
   }
 
   // ── Admin auth ─────────────────────────────────────────────────────────────
-
   /** @returns {{ ok: boolean, error?: string }} */
   function adminLogin({ email, password, remember = false }) {
     const normEmail = email.trim().toLowerCase();
@@ -172,6 +174,68 @@ export function AuthProvider({ children }) {
     setAdmin(null);
   }
 
+  // ── Google OAuth (student only) ───────────────────────────────────────────
+  // Uses Firebase signInWithPopup. Never grants admin role.
+  // Returns { ok: true } on success or { ok: false, error: string } on failure.
+  // Returns { ok: false, error: '' } when the user simply closes the popup.
+  async function googleLogin() {
+    // Guard: auth is null when Firebase env vars are not configured.
+    if (!auth || !googleProvider) {
+      return {
+        ok: false,
+        error:
+          'Google sign-in is not configured yet. ' +
+          'Please add your Firebase credentials to .env.local ' +
+          '(see src/firebase.js for the required variable names).',
+      };
+    }
+
+    try {
+      const { signInWithPopup } = await import('firebase/auth');
+      const result = await signInWithPopup(auth, googleProvider);      const { displayName, email, photoURL, uid } = result.user;
+
+      if (!email) {
+        return { ok: false, error: 'Google did not return an email address. Please try again.' };
+      }
+
+      // Build a student-shaped user object — role is always 'student'.
+      const googleUser = {
+        id:          `google_${uid}`,
+        name:        displayName || email.split('@')[0],
+        email:       email.toLowerCase(),
+        role:        'student',
+        avatar:      photoURL || `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(email)}`,
+        studentId:   '',
+        department:  '',
+        joinedAt:    new Date().toISOString().slice(0, 10),
+        borrowCount: 0,
+        status:      'active',
+        provider:    'google',
+      };
+
+      persist(LS_CUSTOMER, googleUser, true);
+      setCustomer(googleUser);
+      return { ok: true };
+    } catch (err) {
+      if (
+        err.code === 'auth/popup-closed-by-user' ||
+        err.code === 'auth/cancelled-popup-request'
+      ) {
+        return { ok: false, error: '' }; // silent — user cancelled
+      }
+      if (err.code === 'auth/popup-blocked') {
+        return {
+          ok: false,
+          error: 'The sign-in popup was blocked by your browser. Please allow popups for this site and try again.',
+        };
+      }
+      return {
+        ok: false,
+        error: err.message || 'Google sign-in failed. Please try again.',
+      };
+    }
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────────
   const isCustomerLoggedIn = !!customer;
   const isAdminLoggedIn    = !!admin;
@@ -187,6 +251,7 @@ export function AuthProvider({ children }) {
     forgotPassword,
     adminLogin,
     adminLogout,
+    googleLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

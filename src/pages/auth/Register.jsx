@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { FallbackLogo, GoogleIcon, styles, logoUrl } from './Login';
 
 export default function Register() {
-  const { customerRegister } = useAuth();
+  const { customerRegister, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -15,6 +15,7 @@ export default function Register() {
   const [errors,  setErrors]  = useState({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading]   = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -50,8 +51,17 @@ export default function Register() {
     }
   };
 
-  const handleGoogleClick = () => {
-    alert('Google Sign-In is not connected in this prototype.\n\nPlease register with the form above.');
+  const handleGoogleClick = async () => {
+    setApiError('');
+    setGoogleLoading(true);
+    const result = await googleLogin();
+    setGoogleLoading(false);
+    if (result.ok) {
+      navigate('/home', { replace: true });
+    } else if (result.error) {
+      setApiError(result.error);
+    }
+    // empty error = user cancelled popup; do nothing
   };
 
   return (
@@ -160,10 +170,14 @@ export default function Register() {
 
         <div style={styles.divider}><span>or</span></div>
 
-        <button type="button" onClick={handleGoogleClick} style={styles.googleBtn}>
+        <button
+          type="button"
+          onClick={handleGoogleClick}
+          style={{ ...styles.googleBtn, opacity: googleLoading ? 0.7 : 1 }}
+          disabled={googleLoading}
+        >
           <GoogleIcon />
-          Continue with Google
-          <span style={styles.prototypeBadge}>Prototype</span>
+          {googleLoading ? 'Signing in with Google…' : 'Continue with Google'}
         </button>
 
         <p style={styles.bottomText}>

@@ -7,13 +7,14 @@ import logoUrl from '../../assets/looplink-logo.jpg';
 export { logoUrl };
 
 export default function Login() {
-  const { customerLogin } = useAuth();
+  const { customerLogin, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '', remember: false });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -36,8 +37,17 @@ export default function Login() {
     }
   };
 
-  const handleGoogleClick = () => {
-    alert('Google Sign-In is not connected in this prototype.\n\nUse the mock credentials below to log in:\nEmail: alex.rivera@student.edu\nPassword: student123');
+  const handleGoogleClick = async () => {
+    setError('');
+    setGoogleLoading(true);
+    const result = await googleLogin();
+    setGoogleLoading(false);
+    if (result.ok) {
+      navigate('/home', { replace: true });
+    } else if (result.error) {
+      setError(result.error);
+    }
+    // empty error = user cancelled popup; do nothing
   };
 
   return (
@@ -104,10 +114,9 @@ export default function Login() {
 
         <div style={styles.divider}><span>or</span></div>
 
-        <button type="button" onClick={handleGoogleClick} style={styles.googleBtn}>
+        <button type="button" onClick={handleGoogleClick} style={{ ...styles.googleBtn, opacity: googleLoading ? 0.7 : 1 }} disabled={googleLoading}>
           <GoogleIcon />
-          Continue with Google
-          <span style={styles.prototypeBadge}>Prototype</span>
+          {googleLoading ? 'Signing in with Google…' : 'Continue with Google'}
         </button>
 
         <p style={styles.bottomText}>
