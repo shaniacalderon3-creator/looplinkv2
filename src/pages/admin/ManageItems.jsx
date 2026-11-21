@@ -1,5 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase, rowToItem, itemToRow } from '../../lib/supabase';
+import { useState, useEffect } from 'react';
+import {
+  collection, query, orderBy, onSnapshot,
+  addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/shared/Button';
 import StatusBadge from '../../components/shared/StatusBadge';
@@ -9,6 +13,25 @@ import { ConfirmModal } from '../../components/shared/Modal';
 import EmptyState from '../../components/shared/EmptyState';
 import { CATEGORIES } from '../../data/items';
 import { formatPrice } from '../../utils/formatPrice';
+
+// ── Firestore ↔ app shape ─────────────────────────────────────────────────────
+function docToItem(d) {
+  const r = d.data();
+  return {
+    id:          d.id,
+    name:        r.title        ?? '',
+    category:    r.category     ?? '',
+    description: r.description  ?? '',
+    location:    r.location     ?? '',
+    condition:   r.condition    ?? 'Good',
+    borrowingFee:Number(r.borrowingFee) || 0,
+    availability:r.status       ?? 'available',
+    image:       r.imageUrl     ?? '',
+    borrowPeriod:r.borrowPeriod ?? 7,
+    tags:        r.tags         ?? [],
+    createdAt:   r.createdAt?.toDate?.().toISOString().slice(0, 10) ?? '',
+  };
+}
 
 const EMPTY_FORM = {
   name: '', category: '', description: '', image: '',
@@ -29,24 +52,23 @@ export default function ManageItems() {
   const [form,        setForm]        = useState(EMPTY_FORM);
   const [errors,      setErrors]      = useState({});
   const [saving,      setSaving]      = useState(false);
+  const [formError,   setFormError]   = useState(''); // error shown inside the modal
 
-  // ── Load ────────────────────────────────────────────────────────────────────
-  const load = useCallback(async () => {
-    setLoading(true); setDbError('');
-    if (!supabase) {
-      setDbError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local.');
-      setLoading(false); return;
+  // ── Live listener ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!db) {
+      setDbError('Firestore is not initialised. Check your Firebase environment variables.');
+      setLoading(false);
+      return;
     }
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) { setDbError(error.message); setLoading(false); return; }
-    setItems((data ?? []).map(rowToItem));
-    setLoading(false);
+    const q = query(collection(db, 'items'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => { setItems(snap.docs.map(docToItem)); setLoading(false); setDbError(''); },
+      (err)  => { setDbError(`Failed to load items: ${err.message}`); setLoading(false); },
+    );
+    return () => unsub();
   }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   // ── Filter ──────────────────────────────────────────────────────────────────
   const filtered = items.filter((item) => {
@@ -59,11 +81,11 @@ export default function ManageItems() {
 
   // ── Form helpers ─────────────────────────────────────────────────────────────
   const openAdd = () => {
-    setForm(EMPTY_FORM); setErrors({}); setEditTarget(null); setShowForm(true);
+    setForm(EMPTY_FORM); setErrors({}); setFormError(''); setEditTarget(null); setShowForm(true);
   };
   const openEdit = (item) => {
     setForm({ ...item, borrowingFee: item.borrowingFee ?? 0, tags: item.tags?.join(', ') ?? '' });
-    setErrors({}); setEditTarget(item); setShowForm(true);
+    setErrors({}); setFormError(''); setEditTarget(item); setShowForm(true);
   };
   const validate = () => {
     const e = {};
@@ -79,30 +101,47 @@ export default function ManageItems() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    setSaving(true); setDbError('');
-    const row = itemToRow({
-      ...form,
-      borrowPeriod: Number(form.borrowPeriod),
+    setSaving(true); setFormError('');
+
+    // Build the payload with explicit fallbacks — never send undefined to Firestore
+    const payload = {
+      title:        (form.name        || '').trim(),
+      description:  (form.description || '').trim(),
+      category:     form.category     || '',
+      location:     (form.location    || '').trim(),
+      condition:    form.condition    || 'Good',
+      status:       form.availability || 'available',
+      imageUrl:     (form.image       || '').trim(),
       borrowingFee: Number(form.borrowingFee) || 0,
-    });
-    let error;
-    if (editTarget) {
-      ({ error } = await supabase.from('items').update(row).eq('id', editTarget.id));
-    } else {
-      ({ error } = await supabase.from('items').insert(row));
+      borrowPeriod: Number(form.borrowPeriod) || 7,
+      tags: typeof form.tags === 'string'
+        ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : (Array.isArray(form.tags) ? form.tags : []),
+    };
+
+    try {
+      if (editTarget) {
+        await updateDoc(doc(db, 'items', editTarget.id), payload);
+      } else {
+        await addDoc(collection(db, 'items'), { ...payload, createdAt: serverTimestamp() });
+      }
+      setShowForm(false);
+    } catch (err) {
+      // Show the real Firestore error inside the modal — the form stays open
+      setFormError(err.message || 'Save failed. Check your Firestore security rules.');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    if (error) { setDbError(error.message); return; }
-    setShowForm(false);
-    await load();
   };
 
   // ── Delete ───────────────────────────────────────────────────────────────────
   const handleDelete = async (id) => {
     setDbError('');
-    const { error } = await supabase.from('items').delete().eq('id', id);
-    if (error) { setDbError(error.message); return; }
-    await load();
+    try {
+      await deleteDoc(doc(db, 'items', id));
+    } catch (err) {
+      setDbError(err.message);
+    }
   };
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -111,15 +150,14 @@ export default function ManageItems() {
       <PageHeader
         title="Manage Items"
         subtitle={loading ? 'Loading…' : `${items.length} items total`}
-        action={
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button size="sm" variant="secondary" onClick={load} disabled={loading}>↻ Refresh</Button>
-            <Button onClick={openAdd}>+ Add Item</Button>
-          </div>
-        }
+        action={<Button onClick={openAdd}>+ Add Item</Button>}
       />
 
-      {dbError && <ErrorBanner message={dbError} />}
+      {dbError && (
+        <div style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--danger)', marginBottom: '1.25rem' }}>
+          ⚠️ {dbError}
+        </div>
+      )}
 
       {/* Search + filters */}
       <div style={{ marginBottom: '1.5rem' }}>
@@ -139,7 +177,9 @@ export default function ManageItems() {
         </SearchBar>
       </div>
 
-      {loading ? <LoadingRow /> : filtered.length === 0 ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-400)' }}>Loading…</div>
+      ) : filtered.length === 0 ? (
         <EmptyState icon="📦" title="No items found" description="Add an item or adjust your filters." />
       ) : (
         <div className="table-wrapper">
@@ -168,8 +208,7 @@ export default function ManageItems() {
                   <td style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>{item.location}</td>
                   <td style={{ fontSize: '0.875rem' }}>{item.condition}</td>
                   <td>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 700,
-                      color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: (!item.borrowingFee || item.borrowingFee <= 0) ? 'var(--success)' : '#7c1c1c' }}>
                       {formatPrice(item.borrowingFee)}
                     </span>
                   </td>
@@ -188,13 +227,19 @@ export default function ManageItems() {
       )}
 
       {/* Add / Edit Modal */}
-      <Modal open={showForm} onClose={() => setShowForm(false)}
+      <Modal open={showForm} onClose={() => { setShowForm(false); setFormError(''); }}
         title={editTarget ? 'Edit Item' : 'Add New Item'}
         footer={<>
-          <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => { setShowForm(false); setFormError(''); }}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={saving}>{saving ? 'Saving…' : editTarget ? 'Save Changes' : 'Add Item'}</Button>
         </>}>
         <form onSubmit={handleSubmit}>
+          {/* Firestore error banner — shown inside the modal so it's visible */}
+          {formError && (
+            <div style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius)', padding: '0.625rem 0.875rem', fontSize: '0.875rem', color: 'var(--danger)', marginBottom: '1rem' }}>
+              ⚠️ {formError}
+            </div>
+          )}
           <div className="form-group">
             <label className="form-label">Item Name *</label>
             <input className="form-control" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Canon DSLR Camera" />
@@ -264,15 +309,4 @@ export default function ManageItems() {
         confirmLabel="Delete Item" variant="danger" />
     </div>
   );
-}
-
-function ErrorBanner({ message }) {
-  return (
-    <div style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--danger)', marginBottom: '1.25rem' }}>
-      ⚠️ {message}
-    </div>
-  );
-}
-function LoadingRow() {
-  return <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-400)' }}>Loading…</div>;
 }

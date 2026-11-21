@@ -1,20 +1,90 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  collection, query, orderBy, where, limit,
+  onSnapshot,
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/shared/StatusBadge';
 import logoUrl from '../../assets/looplink-logo.jpg';
 
 export default function Dashboard() {
-  const { items, borrowRequests, lostFound, users, sharedDonated } = useApp();
+  // sharedDonated and users still come from AppContext (not migrated)
+  const { users, sharedDonated } = useApp();
   const { admin } = useAuth();
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
 
+  const [items,         setItems]         = useState([]);
+  const [borrowRequests,setBorrowRequests] = useState([]);
+  const [lostFound,     setLostFound]     = useState([]);
+  const [loading,       setLoading]       = useState(true);
+
+  useEffect(() => {
+    if (!db) { setLoading(false); return; }
+
+    // ── Live listeners for the three migrated collections ─────────────────────
+    const unsub1 = onSnapshot(
+      query(collection(db, 'items'), orderBy('createdAt', 'desc')),
+      (snap) => {
+        setItems(snap.docs.map((d) => ({
+          id:           d.id,
+          availability: d.data().status ?? 'available',
+          ...d.data(),
+        })));
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+
+    const unsub2 = onSnapshot(
+      query(collection(db, 'borrowRequests'), orderBy('createdAt', 'desc')),
+      (snap) => setBorrowRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+      () => {},
+    );
+
+    const unsub3 = onSnapshot(
+      query(collection(db, 'lostFoundReports'), orderBy('createdAt', 'desc')),
+      (snap) => setLostFound(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+      () => {},
+    );
+
+    return () => { unsub1(); unsub2(); unsub3(); };
+  }, []);
+
+  // ── Stats derived from live Firestore data ────────────────────────────────
   const stats = [
-    { label: 'Total Items',       value: items.length,                                               sub: `${items.filter(i => i.availability==='available').length} available`,       color: 'var(--primary)',  icon: '📦', path: '/admin/items'           },
-    { label: 'Borrow Requests',   value: borrowRequests.length,                                      sub: `${borrowRequests.filter(r=>r.status==='pending').length} pending`,          color: 'var(--warning)',  icon: '🔄', path: '/admin/borrow-requests'  },
-    { label: 'Shared & Donated',  value: sharedDonated.length,                                       sub: `${sharedDonated.filter(r=>r.status==='pending').length} pending · ${sharedDonated.filter(r=>r.status==='available').length} available`, color: '#7c1c1c', icon: '🎁', path: '/admin/shared-donated' },
-    { label: 'Lost & Found',      value: lostFound.length,                                           sub: `${lostFound.filter(r=>r.status==='open').length} open`,                    color: 'var(--accent)',   icon: '🔍', path: '/admin/lost-found'        },
-    { label: 'Students',          value: users.filter(u=>u.role==='student').length,                 sub: `${users.filter(u=>u.status==='active'&&u.role==='student').length} active`,  color: 'var(--success)', icon: '👥', path: '/admin/users'            },
+    {
+      label: 'Total Items',
+      value: loading ? '…' : items.length,
+      sub:   `${items.filter(i => (i.status ?? i.availability) === 'available').length} available`,
+      color: 'var(--primary)', icon: '📦', path: '/admin/items',
+    },
+    {
+      label: 'Borrow Requests',
+      value: loading ? '…' : borrowRequests.length,
+      sub:   `${borrowRequests.filter(r => r.status === 'pending').length} pending`,
+      color: 'var(--warning)', icon: '🔄', path: '/admin/borrow-requests',
+    },
+    {
+      label: 'Shared & Donated',
+      value: sharedDonated.length,
+      sub:   `${sharedDonated.filter(r => r.status === 'pending').length} pending · ${sharedDonated.filter(r => r.status === 'available').length} available`,
+      color: '#7c1c1c', icon: '🎁', path: '/admin/shared-donated',
+    },
+    {
+      label: 'Lost & Found',
+      value: loading ? '…' : lostFound.length,
+      sub:   `${lostFound.filter(r => r.status === 'open').length} open`,
+      color: 'var(--accent)', icon: '🔍', path: '/admin/lost-found',
+    },
+    {
+      label: 'Students',
+      value: users.filter(u => u.role === 'student').length,
+      sub:   `${users.filter(u => u.status === 'active' && u.role === 'student').length} active`,
+      color: 'var(--success)', icon: '👥', path: '/admin/users',
+    },
   ];
 
   const pendingRequests = borrowRequests.filter((r) => r.status === 'pending').slice(0, 5);
@@ -23,17 +93,10 @@ export default function Dashboard() {
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
-        {/* Logo strip */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-          <img
-            src={logoUrl}
-            alt="LoopLink"
-            style={{ height: 44, width: 'auto', objectFit: 'contain' }}
-          />
+          <img src={logoUrl} alt="LoopLink" style={{ height: 44, width: 'auto', objectFit: 'contain' }} />
         </div>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--gray-800)', letterSpacing: '-0.02em' }}>
-          Dashboard
-        </h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--gray-800)', letterSpacing: '-0.02em' }}>Dashboard</h1>
         <p style={{ color: 'var(--gray-500)', marginTop: '0.25rem' }}>
           Welcome back, <strong>{admin?.name ?? 'Admin'}</strong>! Here's what's happening on campus today.
         </p>
@@ -42,21 +105,9 @@ export default function Dashboard() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="card"
-            style={{ cursor: 'pointer', transition: 'transform var(--transition)' }}
-            onClick={() => navigate(s.path)}
-          >
+          <div key={s.label} className="card" style={{ cursor: 'pointer', transition: 'transform var(--transition)' }} onClick={() => navigate(s.path)}>
             <div className="card-body" style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-              <div
-                style={{
-                  width: 48, height: 48, borderRadius: '12px',
-                  background: s.color + '1a',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', flexShrink: 0,
-                }}
-              >
+              <div style={{ width: 48, height: 48, borderRadius: '12px', background: s.color + '1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>
                 {s.icon}
               </div>
               <div>
@@ -71,64 +122,47 @@ export default function Dashboard() {
 
       {/* Lower panels */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+
         {/* Pending Borrow Requests */}
         <div className="card">
-          <div
-            style={{
-              padding: '1rem 1.25rem',
-              borderBottom: '1px solid var(--gray-200)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}
-          >
+          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--gray-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--gray-800)' }}>Pending Requests</h3>
-            <button
-              onClick={() => navigate('/admin/borrow-requests')}
-              style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}
-            >
-              View all →
-            </button>
+            <button onClick={() => navigate('/admin/borrow-requests')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}>View all →</button>
           </div>
-          {pendingRequests.length === 0 ? (
-            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>
-              No pending requests 🎉
+          {loading ? (
+            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>Loading…</div>
+          ) : pendingRequests.length === 0 ? (
+            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>No pending requests 🎉</div>
+          ) : pendingRequests.map((req) => (
+            <div key={req.id} style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+              <div>
+                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-800)' }}>{req.itemTitle ?? req.itemId ?? '—'}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>{req.studentName} · {req.startDate} → {req.endDate}</p>
+              </div>
+              <StatusBadge status="pending" />
             </div>
-          ) : (
-            <div>
-              {pendingRequests.map((req) => (
-                <PendingRow key={req.id} req={req} items={items} users={users} />
-              ))}
-            </div>
-          )}
+          ))}
         </div>
 
         {/* Open L&F Reports */}
         <div className="card">
-          <div
-            style={{
-              padding: '1rem 1.25rem',
-              borderBottom: '1px solid var(--gray-200)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}
-          >
+          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--gray-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--gray-800)' }}>Open L&amp;F Reports</h3>
-            <button
-              onClick={() => navigate('/admin/lost-found')}
-              style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}
-            >
-              View all →
-            </button>
+            <button onClick={() => navigate('/admin/lost-found')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}>View all →</button>
           </div>
-          {openReports.length === 0 ? (
-            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>
-              No open reports 🎉
+          {loading ? (
+            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>Loading…</div>
+          ) : openReports.length === 0 ? (
+            <div style={{ padding: '1.5rem', color: 'var(--gray-400)', fontSize: '0.9rem', textAlign: 'center' }}>No open reports 🎉</div>
+          ) : openReports.map((r) => (
+            <div key={r.id} style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+              <div>
+                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-800)' }}>{r.title}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>{r.location} · {r.date}</p>
+              </div>
+              <StatusBadge status={r.type} />
             </div>
-          ) : (
-            <div>
-              {openReports.map((r) => (
-                <LFRow key={r.id} report={r} />
-              ))}
-            </div>
-          )}
+          ))}
         </div>
       </div>
 
@@ -140,7 +174,7 @@ export default function Dashboard() {
         <div className="card-body">
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
             {['available', 'borrowed', 'unavailable'].map((status) => {
-              const count = items.filter((i) => i.availability === status).length;
+              const count = items.filter((i) => (i.status ?? i.availability) === status).length;
               const pct   = items.length ? Math.round((count / items.length) * 100) : 0;
               const colors = { available: 'var(--success)', borrowed: 'var(--warning)', unavailable: 'var(--danger)' };
               return (
@@ -159,32 +193,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function PendingRow({ req, items, users }) {
-  const item = items.find((i) => i.id === req.itemId);
-  const user = users.find((u) => u.id === req.userId);
-  return (
-    <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-      <div>
-        <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-800)' }}>{item?.name ?? 'Unknown'}</p>
-        <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>{user?.name} · {req.startDate} → {req.endDate}</p>
-      </div>
-      <StatusBadge status="pending" />
-    </div>
-  );
-}
-
-function LFRow({ report }) {
-  return (
-    <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-      <div>
-        <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-800)' }}>{report.title}</p>
-        <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>{report.location} · {report.date}</p>
-      </div>
-      <StatusBadge status={report.type} />
     </div>
   );
 }

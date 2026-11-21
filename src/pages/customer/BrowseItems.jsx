@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase, rowToItem } from '../../lib/supabase';
+import {
+  collection, query, orderBy, onSnapshot,
+} from 'firebase/firestore';
+import { db } from '../../firebase';
 import SearchBar from '../../components/shared/SearchBar';
 import StatusBadge from '../../components/shared/StatusBadge';
 import PageHeader from '../../components/shared/PageHeader';
@@ -8,35 +11,57 @@ import EmptyState from '../../components/shared/EmptyState';
 import { CATEGORIES } from '../../data/items';
 import { formatPrice } from '../../utils/formatPrice';
 
+// ── Firestore ↔ app shape ─────────────────────────────────────────────────────
+function docToItem(d) {
+  const r = d.data();
+  return {
+    id:          d.id,
+    name:        r.title        ?? '',
+    category:    r.category     ?? '',
+    description: r.description  ?? '',
+    location:    r.location     ?? '',
+    condition:   r.condition    ?? 'Good',
+    borrowingFee:Number(r.borrowingFee) || 0,
+    availability:r.status       ?? 'available',
+    image:       r.imageUrl     ?? '',
+    borrowPeriod:r.borrowPeriod ?? 7,
+    tags:        r.tags         ?? [],
+  };
+}
+
 export default function BrowseItems() {
   const navigate = useNavigate();
-  const [items,   setItems]   = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [dbError, setDbError] = useState('');
+  const [items,    setItems]    = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [dbError,  setDbError]  = useState('');
   const [search,   setSearch]   = useState('');
   const [category, setCategory] = useState('');
   const [avail,    setAvail]    = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true); setDbError('');
-    if (!supabase) {
-      setDbError('Supabase is not configured.');
-      setLoading(false); return;
+  // ── Live listener ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!db) {
+      setDbError('Firestore is not initialised. Check your Firebase environment variables.');
+      setLoading(false);
+      return;
     }
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) { setDbError(error.message); setLoading(false); return; }
-    setItems((data ?? []).map(rowToItem));
-    setLoading(false);
+    const q = query(collection(db, 'items'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => { setItems(snap.docs.map(docToItem)); setLoading(false); setDbError(''); },
+      (err)  => { setDbError(`Failed to load items: ${err.message}`); setLoading(false); },
+    );
+    return () => unsub();
   }, []);
 
-  useEffect(() => { load(); }, [load]);
-
+  // ── Filter ──────────────────────────────────────────────────────────────────
   const filtered = items.filter((item) => {
     const q = search.toLowerCase();
-    const matchSearch = !q || item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q) || item.tags?.some((t) => t.toLowerCase().includes(q));
+    const matchSearch =
+      !q ||
+      item.name.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      item.tags?.some((t) => t.toLowerCase().includes(q));
     const matchCat   = !category || item.category    === category;
     const matchAvail = !avail    || item.availability === avail;
     return matchSearch && matchCat && matchAvail;
@@ -45,9 +70,16 @@ export default function BrowseItems() {
   return (
     <div className="page-content">
       <div className="container">
-        <PageHeader title="Browse Items" subtitle={loading ? 'Loading…' : `${filtered.length} item${filtered.length !== 1 ? 's' : ''} found`} />
+        <PageHeader
+          title="Browse Items"
+          subtitle={loading ? 'Loading…' : `${filtered.length} item${filtered.length !== 1 ? 's' : ''} found`}
+        />
 
-        {dbError && <div style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--danger)', marginBottom: '1.25rem' }}>⚠️ {dbError}</div>}
+        {dbError && (
+          <div style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--danger)', marginBottom: '1.25rem' }}>
+            ⚠️ {dbError}
+          </div>
+        )}
 
         {/* Filters */}
         <div style={{ marginBottom: '1.75rem' }}>
