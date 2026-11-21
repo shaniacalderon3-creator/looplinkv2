@@ -1,4 +1,9 @@
-# Logs
+git status
+git checkout -b backup-before-account-switch
+git add .
+git status
+git commit -m "Backup before switching accounts"
+git push origin backup-before-account-switch# Logs
 logs
 *.log
 npm-debug.log*

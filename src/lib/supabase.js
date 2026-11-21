@@ -14,7 +14,7 @@ const url  = import.meta.env.VITE_SUPABASE_URL?.trim();
 const key  = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
 export const supabase =
-  url && key && !url.startsWith('your-')
+  url && key && !url.startsWith('your-') && !url.startsWith('https://REPLACE') && url.startsWith('https://')
     ? createClient(url, key)
     : null;
 
