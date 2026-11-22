@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import ToastContainer from '../components/shared/Toast';
+import TermsGate from '../components/shared/TermsGate';
 import logoUrl from '../assets/looplink-logo.jpg';
 
 export default function CustomerLayout() {
@@ -163,7 +164,9 @@ export default function CustomerLayout() {
 
       {/* ── Page content ── */}
       <main style={{ flex: 1 }}>
-        <Outlet />
+        <TermsGate>
+          <Outlet />
+        </TermsGate>
       </main>
 
       {/* ── Footer ── */}
@@ -193,6 +196,10 @@ export default function CustomerLayout() {
             </div>
             <p style={{ fontSize: '0.8125rem' }}>
               © 2026 LoopLink — Student Borrowing &amp; Lost and Found Platform
+              {' · '}
+              <Link to="/terms" style={{ color: 'rgba(255,255,255,.45)', textDecoration: 'underline' }}>
+                Terms and Conditions
+              </Link>
             </p>
           </div>
         </div>

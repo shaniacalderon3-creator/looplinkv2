@@ -1,12 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import {
   CustomerRoute,
   AdminRoute,
   GuestOnlyRoute,
   AdminGuestRoute,
 } from './components/shared/ProtectedRoute';
+
+// Redirect "/" → /home if logged in, otherwise → /guide
+function RootRedirect() {
+  const { isCustomerLoggedIn } = useAuth();
+  return <Navigate to={isCustomerLoggedIn ? '/home' : '/guide'} replace />;
+}
 
 // Layouts
 import CustomerLayout from './layouts/CustomerLayout';
@@ -18,6 +25,7 @@ import Register       from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import EditorLogin    from './pages/auth/EditorLogin';
 import Terms          from './pages/auth/Terms';
+import Guide          from './pages/auth/Guide';
 
 // Customer pages
 import Home           from './pages/customer/Home';
@@ -43,7 +51,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             {/* ── Root redirect ── */}
-            <Route index element={<Navigate to="/login" replace />} />
+            <Route index element={<RootRedirect />} />
 
             {/* ── Public auth pages (redirect away if already logged in) ── */}
             <Route
@@ -64,6 +72,7 @@ export default function App() {
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/terms"           element={<Terms />} />
+            <Route path="/guide"           element={<Guide />} />
 
             {/* ── Admin auth ── */}
             <Route

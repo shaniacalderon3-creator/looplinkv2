@@ -130,6 +130,13 @@ export default function Login() {
             Editor / Admin Login →
           </Link>
         </p>
+
+        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--gray-400)', marginTop: '0.75rem' }}>
+          New here?{' '}
+          <Link to="/guide" style={{ color: 'var(--gray-500)', fontWeight: 600, textDecoration: 'underline' }}>
+            Read the Getting Started Guide →
+          </Link>
+        </p>
       </div>
     </div>
   );
