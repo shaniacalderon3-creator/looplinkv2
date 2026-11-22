@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
   collection, query, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
+  addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/shared/PageHeader';
 import Button from '../../components/shared/Button';
 import SearchBar from '../../components/shared/SearchBar';
@@ -195,6 +196,49 @@ export default function SharedDonated() {
     }
   };
 
+  // ── Open or create conversation then navigate ───────────────────────────────
+  const openOrCreateConversation = async (listing) => {
+    const fbUser = auth.currentUser;
+    if (!fbUser) { setDbError('Please log in to send a message.'); return; }
+    if (!db)     { setDbError('Firestore is not initialised.');    return; }
+
+    const convId  = `${listing.id}_${fbUser.uid}`;
+    const convRef = doc(db, 'conversations', convId);
+
+    try {
+      const snap = await getDoc(convRef);
+      if (!snap.exists()) {
+        // 1. Create conversation document first, await it
+        await setDoc(convRef, {
+          sharedItemId:  listing.id,
+          itemTitle:     listing.title      ?? '',
+          ownerId:       listing.ownerId    ?? '',
+          ownerName:     listing.ownerName  ?? '',
+          requesterId:   fbUser.uid,
+          requesterName: fbUser.displayName || customer?.name || fbUser.email || '',
+          participants:  [listing.ownerId ?? '', fbUser.uid],
+          lastMessage:   '',
+          lastMessageAt: serverTimestamp(),
+          createdAt:     serverTimestamp(),
+        });
+        // 2. Add the opening message after the doc exists
+        await addDoc(collection(db, 'conversations', convId, 'messages'), {
+          senderId:   fbUser.uid,
+          senderName: fbUser.displayName || customer?.name || fbUser.email || '',
+          text:       `Hi! I'm interested in your ${listing.title ?? 'item'}.`,
+          createdAt:  serverTimestamp(),
+        });
+        await updateDoc(convRef, {
+          lastMessage:   `Hi! I'm interested in your ${listing.title ?? 'item'}.`,
+          lastMessageAt: serverTimestamp(),
+        });
+      }
+      navigate(`/messages/${convId}`);
+    } catch (err) {
+      setDbError(`Could not open conversation: ${err.message}`);
+    }
+  };
+
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="page-content">
@@ -262,6 +306,7 @@ export default function SharedDonated() {
                 onEdit={() => openEdit(listing)}
                 onDelete={() => setDeleteId(listing.id)}
                 onSetStatus={setStatus}
+                onRequest={() => openOrCreateConversation(listing)}
               />
             ))}
           </div>
