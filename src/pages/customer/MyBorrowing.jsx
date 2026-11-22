@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  collection, query, where, orderBy,
+  collection, query, where,
   onSnapshot, getDoc, doc,
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
@@ -43,13 +43,19 @@ export default function MyBorrowing() {
     const q = query(
       collection(db, 'borrowRequests'),
       where('studentId', '==', fbUser.uid),
-      orderBy('createdAt', 'desc'),
+      // No orderBy here — avoids requiring a composite index.
+      // Sorted in JS below instead.
     );
 
     const unsub = onSnapshot(
       q,
       async (snap) => {
-        const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // Sort newest-first in JS (avoids a composite index on studentId + createdAt).
+        // Firestore Timestamps expose .toDate(); fall back to 0 for missing values.
+        const toMs = (ts) => (ts?.toDate ? ts.toDate().getTime() : Number(ts) || 0);
+        const rows = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
         setRequests(rows);
         setLoading(false);
         setDbError('');
