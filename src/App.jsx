@@ -17,6 +17,7 @@ import Login          from './pages/auth/Login';
 import Register       from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import EditorLogin    from './pages/auth/EditorLogin';
+import Terms          from './pages/auth/Terms';
 
 // Customer pages
 import Home           from './pages/customer/Home';
@@ -62,6 +63,7 @@ export default function App() {
               }
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/terms"           element={<Terms />} />
 
             {/* ── Admin auth ── */}
             <Route
